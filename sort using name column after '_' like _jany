@@ -1,0 +1,50 @@
+package pack
+import org.apache.hadoop.hive.ql.exec.UDF
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import scala.io.Source
+import org.apache.spark.sql.types.{HIVE_TYPE_STRING, IntegerType}
+import org.apache.spark.sql.{Row, SparkSession, functions => F}
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions
+import org.apache.spark.sql.expressions
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.types.{StructType, StructField, IntegerType, StringType}
+import org.apache.spark.sql.functions.{coalesce, col, count, dense_rank, exp, expr, monotonically_increasing_id, row_number, sum, to_date, window}
+import org.apache.spark.sql.functions._
+object Secanriospratice {
+  def main(Args:Array[String]):Unit= {
+    println("======Hello=======")
+
+    // Initialize Spark session
+    val conf = new SparkConf().setAppName("first").setMaster("local[*]")
+      .set("spark.driver.host", "localhost")
+      .set("spark.driver.allowMultipleContexts", "true")
+    val sc = new SparkContext(conf)
+    sc.setLogLevel("ERROR")
+    val spark = SparkSession.builder.getOrCreate()
+    import spark.implicits._
+
+    // Sample data
+    val data = Seq(
+      ("sree_ramesh", 100),
+      ("chiran_tan", 200),
+      ("ram_kris", 300),
+      ("john_stan", 400),
+      ("mar_jany", 200)
+    )
+
+    // Create DataFrame
+    val df = data.toDF("name", "sal")
+
+    // Show DataFrame
+    df.show()
+
+    val sorted_df = df.orderBy(split($"name","_").getItem(1))
+
+    //sorted DataFrame
+    sorted_df.show()
+
+
+  }
+}
