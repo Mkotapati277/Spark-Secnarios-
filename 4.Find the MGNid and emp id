@@ -1,0 +1,57 @@
+package pack
+import org.apache.hadoop.hive.ql.exec.UDF
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import scala.io.Source
+import org.apache.spark.sql.types.{HIVE_TYPE_STRING, IntegerType}
+import org.apache.spark.sql.{Row, SparkSession, functions => F}
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions
+import org.apache.spark.sql.expressions
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.types.{StructType, StructField, IntegerType, StringType}
+import org.apache.spark.sql.functions.{coalesce, col, count, dense_rank, exp, expr, monotonically_increasing_id, row_number, sum, to_date, window}
+import org.apache.spark.sql.functions._
+object Secanriospratice {
+  def main(Args:Array[String]):Unit= {
+    println("======Hello=======")
+
+    // Initialize Spark session
+    val conf = new SparkConf().setAppName("first").setMaster("local[*]")
+      .set("spark.driver.host", "localhost")
+      .set("spark.driver.allowMultipleContexts", "true")
+
+    val sc = new SparkContext(conf)
+    sc.setLogLevel("ERROR")
+
+    val spark = SparkSession.builder.getOrCreate()
+    import spark.implicits._
+    // Create a DataFrame with the given data
+    // Sample data
+    val data = Seq(
+      (101, "Mary", 102),
+      (102, "Ravi", null),
+      (103, "Raj", 102),
+      (104, "Pete", 103),
+      (105, "Prasad", 103),
+      (106, "Ben", 103)
+    )
+
+    // Define the schema
+    val schema = StructType(Array(
+      StructField("id", IntegerType, true),
+      StructField("ename", StringType, true),
+      StructField("manager_id", IntegerType, true)
+    ))
+
+    // Creating DataFrame
+    val df = spark.createDataFrame(spark.sparkContext.parallelize(data.map(Row.fromTuple)), schema)
+    df.show()
+
+    val df2 = df.as("emp").join(df.as("mgr"),$"emp.manager_id" === $"mgr.id","left")
+      .select($"mgr.id".as("MGNID"),$"mgr.ename".as("Ename")).distinct().na.drop().orderBy("MGNID")
+    df2.show()
+
+
+  }
+}
