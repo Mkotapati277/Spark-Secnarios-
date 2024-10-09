@@ -1,0 +1,52 @@
+package pack
+import org.apache.hadoop.hive.ql.exec.UDF
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import scala.io.Source
+import org.apache.spark.sql.types.{HIVE_TYPE_STRING, IntegerType}
+import org.apache.spark.sql.{Row, SparkSession, functions => F}
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions
+import org.apache.spark.sql.expressions
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.types.{StructType, StructField, IntegerType, StringType}
+import org.apache.spark.sql.functions.{coalesce, col, count, dense_rank, exp, expr, monotonically_increasing_id, row_number, sum, to_date, window}
+import org.apache.spark.sql.functions._
+object Secanriospratice {
+  def main(Args:Array[String]):Unit= {
+    println("======Hello=======")
+
+    // Initialize Spark session
+    val conf = new SparkConf().setAppName("first").setMaster("local[*]")
+      .set("spark.driver.host", "localhost")
+      .set("spark.driver.allowMultipleContexts", "true")
+
+    val sc = new SparkContext(conf)
+    sc.setLogLevel("ERROR")
+
+    val spark = SparkSession.builder.getOrCreate()
+    import spark.implicits._
+
+    // Create a sequence of data
+    val data = Seq(
+      (10, 10, 600, "10-Jan-19"),
+      (20, 10, 200, "10-Jun-19"),
+      (30, 20, 300, "20-Jan-20"),
+      (40, 30, 400, "30-Jun-20"),
+      (20, 15, 200, "01-Jun-18"),
+      (20, 5, 200, "10-May-18"), (20, 5, 200, "10-Jan-18")
+
+    )
+
+    val df = data.toDF("emp_id", "dept_id", "sal", "hire_date")
+    df.show()
+
+    // Convert hire_date to actual date format for proper sorting
+    // val df_with_date  = df.withColumn("hire_date",to_date($"hire_date","dd-MMM-yy"))
+    //df_with_date.show()
+
+    val res = df.orderBy($"dept_id",$"hire_date")
+    res.show()
+
+  }
+}
